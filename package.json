@@ -1,0 +1,28 @@
+{
+    "name": "bezier_doodle",
+    "version": "1.0.0",
+    "description": "Bezier doodle",
+    "main": "build\/bezier_doodle.js",
+    "dependencies": {
+        "jquery": "^3.2.1"
+    },
+    "devDependencies": {
+        "babel-core": "^6.26.0",
+        "babel-loader": "^7.1.2",
+        "babel-preset-env": "^1.6.0",
+        "webpack": "^3.6.0"
+    },
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [
+        "jQuery",
+        "plugin"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https:\/\/github.com\/lemehovskiy\/bezier_doodle"
+    },
+    "author": "lemehovskiy",
+    "license": "ISC"
+}
