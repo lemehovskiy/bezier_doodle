@@ -2,6 +2,8 @@ require("./sass/style.scss");
 
 require ("jquery");
 
+require('../build/bezier_doodle');
+
 if (NODE_ENV == 'development') {
     console.log('NODE_ENV == dev');
 }
@@ -9,5 +11,6 @@ if (NODE_ENV == 'development') {
 
 $(document).ready(function () {
 
+    $('.doodle-sample').bezierDoodle();
 
 });
