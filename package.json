@@ -2,7 +2,7 @@
     "name": "bezier_doodle",
     "version": "1.0.0",
     "description": "Bezier doodle",
-    "main": "build\/bezier_doodle.js",
+    "main": "build/bezier_doodle.js",
     "dependencies": {
         "jquery": "^3.2.1"
     },
@@ -21,7 +21,7 @@
     ],
     "repository": {
         "type": "git",
-        "url": "https:\/\/github.com\/lemehovskiy\/bezier_doodle"
+        "url": "https://github.com/lemehovskiy/bezier_doodle"
     },
     "author": "lemehovskiy",
     "license": "ISC"

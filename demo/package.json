@@ -2,7 +2,7 @@
     "name": "bezier_doodle_demo",
     "version": "1.0.0",
     "description": "Bezier doodle",
-    "main": "build\/bezier_doodle.js",
+    "main": "build/bezier_doodle.js",
     "dependencies": [],
     "devDependencies": {
         "autoprefixer": "^7.2.3",
@@ -28,7 +28,7 @@
     ],
     "repository": {
         "type": "git",
-        "url": "https:\/\/github.com\/lemehovskiy\/bezier_doodle"
+        "url": "https://github.com/lemehovskiy/bezier_doodle"
     },
     "author": "lemehovskiy",
     "license": "ISC"

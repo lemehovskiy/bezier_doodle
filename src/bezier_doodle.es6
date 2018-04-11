@@ -45,6 +45,18 @@
                 b: 0
             }, cycle = 90, input = false, FPS = 60;
 
+
+            let total_points = 12;
+
+            let debug = true;
+
+            let ease = 0.01, friction = 0.98;
+
+            function getRandomArbitrary(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+
+
             function init() {
 
 
@@ -64,7 +76,9 @@
                 canvas.style.zIndex = -1;
                 canvas.style.cursor = 'pointer';
 
-                body.appendChild(canvas);
+
+                self.$element.append(canvas);
+                // body.appendChild(canvas);
 
 
                 context = canvas.getContext('2d');
@@ -89,12 +103,15 @@
 
             function createBezierNodes() {
 
-                for (var quantity = 0, len = 3; quantity < len; quantity++) {
+                for (let i = 0; i < total_points; i++) {
 
-                    var theta = Math.PI * 2 * quantity / len;
+                    let point_angle = Math.PI * 2 * i / total_points;
 
-                    var x = canvas.width * 0.5;
-                    var y = canvas.height * 0.5;
+                    // console.log(point_angle);
+
+                    let x = canvas.width * 0.5;
+                    let y = canvas.height * 0.5;
+
 
                     nodes.push({
 
@@ -112,11 +129,12 @@
 
                         orbit: 20,
                         angle: Math.random() * Math.PI * 2,
-                        speed: 0.05 + Math.random() * 0.05,
+                        speed: getRandomArbitrary(0.01, 0.1),
 
-                        theta: theta
+                        point_angle: point_angle
 
                     });
+
 
                 }
 
@@ -145,31 +163,16 @@
 
             function update() {
 
-                var ease = 0.01, friction = 0.98;
-
 
                 nodes.forEach(function (node) {
 
                     context.clearRect(0, 0, canvas.width, canvas.height);
 
-                    node.lastX += (canvas.width * 0.5 + node.disturb * Math.cos(node.theta) - node.lastX) * 0.08;
-                    node.lastY += (canvas.height * 0.5 + node.disturb * Math.sin(node.theta) - node.lastY) * 0.08;
+                    node.lastX += canvas.width * 0.5 + node.disturb * Math.cos(node.point_angle) - node.lastX;
+                    node.lastY += canvas.height * 0.5 + node.disturb * Math.sin(node.point_angle) - node.lastY;
 
-                    // Motion
-                    node.x += ((node.lastX + Math.cos(node.angle) * node.orbit) - node.x) * 0.08;
-                    node.y += ((node.lastY + Math.sin(node.angle) * node.orbit) - node.y) * 0.08;
-
-                    // Ease
-                    node.vx += (node.min - node.disturb) * ease;
-
-                    // Friction
-                    node.vx *= friction;
-
-                    node.disturb += node.vx;
-
-                    if (input) {
-                        node.disturb += (node.max - node.disturb) * reactivity;
-                    }
+                    node.x += (node.lastX + Math.cos(node.angle) * node.orbit) - node.x;
+                    node.y += (node.lastY + Math.sin(node.angle) * node.orbit) - node.y;
 
 
                     node.angle += node.speed;
@@ -179,21 +182,32 @@
             }
 
 
+            function draw_debug_bullet(x, y, size = 10, color = '#a9a9a9'){
+                context.beginPath();
+                context.arc(x, y, size, 0, 2 * Math.PI);
+                context.strokeStyle = color;
+                context.lineWidth = 2;
+                context.stroke();
+                context.save();
+            }
+
+
             function render() {
 
-                var currentIndex, nextIndex, xc, yc;
+                var next_node, xc, yc;
 
-                nodes.forEach(function () {
+                nodes.forEach(function (current_node, index) {
 
-                    clear();
+                    // clear();
 
-                    currentIndex = nodes[nodes.length - 1];
-                    nextIndex = nodes[0];
+                    next_node = index === nodes.length - 1 ? nodes[0] : nodes[index + 1];
 
-                    xc = currentIndex.x + (nextIndex.x - currentIndex.x) * 0.5;
-                    yc = currentIndex.y + (nextIndex.y - currentIndex.y) * 0.5;
+                    xc = current_node.x + (next_node.x - current_node.x) * .5;
+                    yc = current_node.y + (next_node.y - current_node.y) * .5;
+                    // console.log('x' + xc);
 
-                    context.save();
+                    draw_debug_bullet(xc, yc, 5);
+
                     context.strokeStyle = '#e5e5e5';
                     context.fillStyle = 'rgb' + '(' + color.r + ', ' + color.g + ', ' + color.b + ')';
                     context.globalAlpha = 0.5;
@@ -201,21 +215,43 @@
                     context.beginPath();
                     context.moveTo(xc, yc);
 
-                    for (let i = 0; i < nodes.length; i++) {
 
-                        currentIndex = nodes[i];
-                        nextIndex = i + 1 > nodes.length - 1 ? nodes[i - nodes.length + 1] : nodes[i + 1];
+                    nodes.forEach(function (current_node, index) {
 
-                        xc = currentIndex.x + (nextIndex.x - currentIndex.x) * 0.5;
-                        yc = currentIndex.y + (nextIndex.y - currentIndex.y) * 0.5;
+                        next_node = index === nodes.length - 1 ? nodes[0] : nodes[index + 1];
 
-                        context.quadraticCurveTo(currentIndex.x, currentIndex.y, xc, yc);
+                        xc = current_node.x + (next_node.x - current_node.x) * 0.5;
+                        yc = current_node.y + (next_node.y - current_node.y) * 0.5;
 
-                    }
+                        context.quadraticCurveTo(current_node.x, current_node.y, xc, yc);
+
+                    });
+
 
                     context.fill();
                     context.stroke();
                     context.restore();
+
+
+                    // draw_debug_bullet(xc, yc, 5);
+
+                    //debug//debug//debug//debug//debug//debug
+
+                    if (debug) {
+                        nodes.forEach(function (current_node, index) {
+
+                            next_node = index === nodes.length - 1 ? nodes[0] : nodes[index + 1];
+
+                            xc = current_node.x + (next_node.x - current_node.x) * 0.5;
+                            yc = current_node.y + (next_node.y - current_node.y) * 0.5;
+
+                            // draw_debug_bullet(current_node.x, current_node.y, false, 3);
+                            // draw_debug_bullet(xc, yc, false, 10);
+
+                        });
+                    }
+
+
 
                     context.save();
                     context.globalAlpha = 1.0;
