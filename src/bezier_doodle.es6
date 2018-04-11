@@ -46,11 +46,13 @@
             }, cycle = 90, input = false, FPS = 60;
 
 
-            let total_points = 12;
+            let total_points = 3;
 
             let debug = true;
 
             let ease = 0.01, friction = 0.98;
+
+            let pairs = [];
 
             function getRandomArbitrary(min, max) {
                 return Math.random() * (max - min) + min;
@@ -92,7 +94,6 @@
             }
 
 
-
             function onResize() {
 
                 canvas.width = window.innerWidth;
@@ -107,12 +108,12 @@
 
                     let point_angle = Math.PI * 2 * i / total_points;
 
-                    // console.log(point_angle);
 
                     let x = canvas.width * 0.5;
                     let y = canvas.height * 0.5;
 
 
+                    console.log(i);
                     nodes.push({
 
                         x: x,
@@ -131,15 +132,80 @@
                         angle: Math.random() * Math.PI * 2,
                         speed: getRandomArbitrary(0.01, 0.1),
 
-                        point_angle: point_angle
+                        point_angle: point_angle,
+
+                        index: i
 
                     });
+
+                    // console.log(total_points    );
 
 
                 }
 
                 loop();
 
+                create_pairs();
+
+            }
+
+
+            function create_pairs() {
+
+                let next_node, current_node, control_point_x, control_point_y;
+
+                for (let i = 0; i < total_points; i++) {
+
+                    console.log(i);
+
+                    // console.log(nodes.length)
+                    current_node = nodes[i];
+                    next_node = i === nodes.length - 1 ? nodes[0] : nodes[i + 1];
+                    console.log(next_node);
+
+                    control_point_x = current_node.x + (next_node.x - current_node.x) * 0.5;
+                    control_point_y = current_node.y + (next_node.y - current_node.y) * 0.5;
+
+                    pairs.push({
+                        start_point_x: nodes[i].x,
+                        start_point_y: nodes[i].y,
+                        control_point_x: control_point_x,
+                        control_point_y: control_point_y,
+                        end_point_x: next_node.x,
+                        end_point_y: next_node.y
+                    })
+
+                    console.log(pairs);
+
+                }
+
+
+                // nodes.forEach(function (current_node, index) {
+                //
+                //     next_node = index === nodes.length - 1 ? nodes[0] : nodes[index + 1];
+                //
+                //     xc = current_node.x + (next_node.x - current_node.x) * 0.5;
+                //     yc = current_node.y + (next_node.y - current_node.y) * 0.5;
+                //
+                //     draw_debug_bullet(current_node.x, current_node.y, 10, '#0000FF');
+                //
+                //     draw_debug_bullet(xc, yc, 10, '#00FF00');
+                //
+                //     // draw_debug_bullet(current_node.x, current_node.y, false, 3);
+                //     // draw_debug_bullet(xc, yc, false, 10);
+                //
+                //     context.lineWidth = 5;
+                //     context.beginPath();
+                //     context.moveTo(xc, yc);
+                //
+                //     context.quadraticCurveTo(current_node.x, current_node.y, xc, yc);
+                //
+                //
+                //     context.fill();
+                //     context.stroke();
+                //     context.restore();
+                //
+                // });
             }
 
 
@@ -179,92 +245,118 @@
 
                 });
 
+
             }
 
 
-            function draw_debug_bullet(x, y, size = 10, color = '#a9a9a9'){
+            function draw_debug_bullet(x, y, size = 10, color = '#a9a9a9') {
                 context.beginPath();
                 context.arc(x, y, size, 0, 2 * Math.PI);
                 context.strokeStyle = color;
                 context.lineWidth = 2;
                 context.stroke();
-                context.save();
+                context.restore();
             }
 
 
             function render() {
 
-                var next_node, xc, yc;
+                clear();
 
-                nodes.forEach(function (current_node, index) {
+                pairs.forEach(function (pair) {
 
-                    // clear();
 
-                    next_node = index === nodes.length - 1 ? nodes[0] : nodes[index + 1];
-
-                    xc = current_node.x + (next_node.x - current_node.x) * .5;
-                    yc = current_node.y + (next_node.y - current_node.y) * .5;
-                    // console.log('x' + xc);
-
-                    draw_debug_bullet(xc, yc, 5);
-
-                    context.strokeStyle = '#e5e5e5';
-                    context.fillStyle = 'rgb' + '(' + color.r + ', ' + color.g + ', ' + color.b + ')';
-                    context.globalAlpha = 0.5;
-                    context.lineWidth = 5;
                     context.beginPath();
-                    context.moveTo(xc, yc);
-
-
-                    nodes.forEach(function (current_node, index) {
-
-                        next_node = index === nodes.length - 1 ? nodes[0] : nodes[index + 1];
-
-                        xc = current_node.x + (next_node.x - current_node.x) * 0.5;
-                        yc = current_node.y + (next_node.y - current_node.y) * 0.5;
-
-                        context.quadraticCurveTo(current_node.x, current_node.y, xc, yc);
-
-                    });
-
-
+                    context.moveTo(pair.start_point_x, pair.start_point_y);
+                    context.quadraticCurveTo(pair.control_point_x, pair.control_point_y, pair.end_point_x, pair.end_point_y);
                     context.fill();
                     context.stroke();
-                    context.restore();
 
-
-                    // draw_debug_bullet(xc, yc, 5);
-
-                    //debug//debug//debug//debug//debug//debug
-
-                    if (debug) {
-                        nodes.forEach(function (current_node, index) {
-
-                            next_node = index === nodes.length - 1 ? nodes[0] : nodes[index + 1];
-
-                            xc = current_node.x + (next_node.x - current_node.x) * 0.5;
-                            yc = current_node.y + (next_node.y - current_node.y) * 0.5;
-
-                            // draw_debug_bullet(current_node.x, current_node.y, false, 3);
-                            // draw_debug_bullet(xc, yc, false, 10);
-
-                        });
-                    }
-
-
-
-                    context.save();
-                    context.globalAlpha = 1.0;
-                    context.lineWidth = 1;
-                    context.lineCap = 'round';
-                    context.lineJoin = 'round';
-                    context.strokeStyle = '#a9a9a9';
-                    context.fillStyle = '#a9a9a9';
+                    draw_debug_bullet(pair.start_point_x, pair.start_point_y, 10, '#0000FF');
+                    draw_debug_bullet(pair.control_point_x, pair.control_point_y, 10, '#FF0000');
 
 
                     context.restore();
 
-                });
+                })
+                // var next_node, xc, yc;
+                //
+                // nodes.forEach(function (current_node, index) {
+                //
+                //     clear();
+                //
+                //     next_node = index === nodes.length - 1 ? nodes[0] : nodes[index + 1];
+                //
+                //     xc = current_node.x + (next_node.x - current_node.x) * .5;
+                //     yc = current_node.y + (next_node.y - current_node.y) * .5;
+                //     // console.log('x' + xc);
+                //
+                //     draw_debug_bullet(xc, yc, 5, '#FF0000');
+                //
+                //     context.strokeStyle = '#e5e5e5';
+                //     context.fillStyle = 'rgb' + '(' + color.r + ', ' + color.g + ', ' + color.b + ')';
+                //     context.globalAlpha = 0.5;
+                //     context.lineWidth = 5;
+                //     context.beginPath();
+                //     context.moveTo(xc, yc);
+                //
+                //
+                //     nodes.forEach(function (current_node, index) {
+                //
+                //         console.log('asdf');
+                //
+                //         next_node = index === nodes.length - 1 ? nodes[0] : nodes[index + 1];
+                //
+                //         xc = current_node.x + (next_node.x - current_node.x) * 0.5;
+                //         yc = current_node.y + (next_node.y - current_node.y) * 0.5;
+                //
+                //         context.quadraticCurveTo(current_node.x, current_node.y, xc, yc);
+                //
+                //
+                //     });
+                //
+                //
+                //     context.fill();
+                //     context.stroke();
+                //     context.restore();
+                //
+                //
+                //     // draw_debug_bullet(xc, yc, 5);
+                //
+                //     //debug//debug//debug//debug//debug//debug
+                //
+                //     if (debug) {
+                //         nodes.forEach(function (current_node, index) {
+                //
+                //             next_node = index === nodes.length - 1 ? nodes[0] : nodes[index + 1];
+                //
+                //             xc = current_node.x + (next_node.x - current_node.x) * 0.5;
+                //             yc = current_node.y + (next_node.y - current_node.y) * 0.5;
+                //
+                //             draw_debug_bullet(current_node.x, current_node.y, 10, '#0000FF');
+                //
+                //             draw_debug_bullet(xc, yc, 10, '#00FF00');
+                //
+                //             // draw_debug_bullet(current_node.x, current_node.y, false, 3);
+                //             // draw_debug_bullet(xc, yc, false, 10);
+                //
+                //         });
+                //     }
+                //
+                //
+                //
+                //     context.save();
+                //     context.globalAlpha = 1.0;
+                //     context.lineWidth = 1;
+                //     context.lineCap = 'round';
+                //     context.lineJoin = 'round';
+                //     context.strokeStyle = '#a9a9a9';
+                //     context.fillStyle = '#a9a9a9';
+                //
+                //
+                //     context.restore();
+                //
+                // });
 
 
             }
