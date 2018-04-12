@@ -7071,7 +7071,7 @@ __webpack_require__(67);
 
 __webpack_require__(68);
 
-__webpack_require__(112);
+__webpack_require__(108);
 
 if (true) {
     console.log('NODE_ENV == dev');
@@ -12034,11 +12034,7 @@ if ( !noGlobal ) {
 
 
 /***/ }),
-/* 108 */,
-/* 109 */,
-/* 110 */,
-/* 111 */,
-/* 112 */
+/* 108 */
 /***/ (function(module, exports) {
 
 /******/ (function(modules) { // webpackBootstrap
@@ -12155,6 +12151,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
         var canvas,
             context,
+            control_points = [],
             nodes = [],
             mouse = { x: 0, y: 0 },
             color = {
@@ -12166,7 +12163,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             input = false,
             FPS = 60;
 
-        var total_points = 3;
+        var total_points = 32;
 
         var debug = true;
 
@@ -12222,8 +12219,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 var x = canvas.width * 0.5;
                 var y = canvas.height * 0.5;
 
-                console.log(i);
-                nodes.push({
+                control_points.push({
 
                     x: x,
                     y: y,
@@ -12233,18 +12229,23 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                     lastX: x,
                     lastY: y,
 
-                    min: 150,
-                    max: 250,
+                    min: 50,
+                    max: 100,
                     disturb: 150,
 
-                    orbit: 20,
+                    orbit: 10,
                     angle: Math.random() * Math.PI * 2,
-                    speed: getRandomArbitrary(0.01, 0.1),
+                    speed: getRandomArbitrary(0.05, 0.1),
 
                     point_angle: point_angle,
 
                     index: i
 
+                });
+
+                nodes.push({
+                    x: 0,
+                    y: 0
                 });
 
                 // console.log(total_points    );
@@ -12253,67 +12254,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
             loop();
 
-            create_pairs();
+            // create_pairs();
         }
 
-        function create_pairs() {
+        // function update_nodes() {
+        //
+        //     console.log(nodes);
+        // }
 
-            var next_node = void 0,
-                current_node = void 0,
-                control_point_x = void 0,
-                control_point_y = void 0;
-
-            for (var i = 0; i < total_points; i++) {
-
-                console.log(i);
-
-                // console.log(nodes.length)
-                current_node = nodes[i];
-                next_node = i === nodes.length - 1 ? nodes[0] : nodes[i + 1];
-                console.log(next_node);
-
-                control_point_x = current_node.x + (next_node.x - current_node.x) * 0.5;
-                control_point_y = current_node.y + (next_node.y - current_node.y) * 0.5;
-
-                pairs.push({
-                    start_point_x: nodes[i].x,
-                    start_point_y: nodes[i].y,
-                    control_point_x: control_point_x,
-                    control_point_y: control_point_y,
-                    end_point_x: next_node.x,
-                    end_point_y: next_node.y
-                });
-
-                console.log(pairs);
-            }
-
-            // nodes.forEach(function (current_node, index) {
-            //
-            //     next_node = index === nodes.length - 1 ? nodes[0] : nodes[index + 1];
-            //
-            //     xc = current_node.x + (next_node.x - current_node.x) * 0.5;
-            //     yc = current_node.y + (next_node.y - current_node.y) * 0.5;
-            //
-            //     draw_debug_bullet(current_node.x, current_node.y, 10, '#0000FF');
-            //
-            //     draw_debug_bullet(xc, yc, 10, '#00FF00');
-            //
-            //     // draw_debug_bullet(current_node.x, current_node.y, false, 3);
-            //     // draw_debug_bullet(xc, yc, false, 10);
-            //
-            //     context.lineWidth = 5;
-            //     context.beginPath();
-            //     context.moveTo(xc, yc);
-            //
-            //     context.quadraticCurveTo(current_node.x, current_node.y, xc, yc);
-            //
-            //
-            //     context.fill();
-            //     context.stroke();
-            //     context.restore();
-            //
-            // });
-        }
 
         function loop() {
 
@@ -12330,8 +12278,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }
 
         function update() {
-
-            nodes.forEach(function (node) {
+            control_points.forEach(function (node) {
 
                 context.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -12342,6 +12289,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 node.y += node.lastY + Math.sin(node.angle) * node.orbit - node.y;
 
                 node.angle += node.speed;
+            });
+
+            var next_control_point = void 0,
+                current_control_point = void 0;
+
+            nodes.forEach(function (node, index) {
+                current_control_point = control_points[index];
+                next_control_point = index === total_points - 1 ? control_points[0] : control_points[index + 1];
+
+                node.x = current_control_point.x + (next_control_point.x - current_control_point.x) * 0.5;
+                node.y = current_control_point.y + (next_control_point.y - current_control_point.y) * 0.5;
             });
         }
 
@@ -12361,97 +12319,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
             clear();
 
-            pairs.forEach(function (pair) {
+            context.beginPath();
+            context.moveTo(nodes[0].x, nodes[0].y);
 
-                context.beginPath();
-                context.moveTo(pair.start_point_x, pair.start_point_y);
-                context.quadraticCurveTo(pair.control_point_x, pair.control_point_y, pair.end_point_x, pair.end_point_y);
+            nodes.forEach(function (node, index) {
+                var next_node = index === total_points - 1 ? nodes[0] : nodes[index + 1];
+                var current_control_point_index = index === total_points - 1 ? 0 : index + 1;
+                context.quadraticCurveTo(control_points[current_control_point_index].x, control_points[current_control_point_index].y, next_node.x, next_node.y);
                 context.fill();
-                context.stroke();
-
-                draw_debug_bullet(pair.start_point_x, pair.start_point_y, 10, '#0000FF');
-                draw_debug_bullet(pair.control_point_x, pair.control_point_y, 10, '#FF0000');
-
                 context.restore();
             });
-            // var next_node, xc, yc;
-            //
-            // nodes.forEach(function (current_node, index) {
-            //
-            //     clear();
-            //
-            //     next_node = index === nodes.length - 1 ? nodes[0] : nodes[index + 1];
-            //
-            //     xc = current_node.x + (next_node.x - current_node.x) * .5;
-            //     yc = current_node.y + (next_node.y - current_node.y) * .5;
-            //     // console.log('x' + xc);
-            //
-            //     draw_debug_bullet(xc, yc, 5, '#FF0000');
-            //
-            //     context.strokeStyle = '#e5e5e5';
-            //     context.fillStyle = 'rgb' + '(' + color.r + ', ' + color.g + ', ' + color.b + ')';
-            //     context.globalAlpha = 0.5;
-            //     context.lineWidth = 5;
-            //     context.beginPath();
-            //     context.moveTo(xc, yc);
-            //
-            //
-            //     nodes.forEach(function (current_node, index) {
-            //
-            //         console.log('asdf');
-            //
-            //         next_node = index === nodes.length - 1 ? nodes[0] : nodes[index + 1];
-            //
-            //         xc = current_node.x + (next_node.x - current_node.x) * 0.5;
-            //         yc = current_node.y + (next_node.y - current_node.y) * 0.5;
-            //
-            //         context.quadraticCurveTo(current_node.x, current_node.y, xc, yc);
-            //
-            //
-            //     });
-            //
-            //
-            //     context.fill();
-            //     context.stroke();
-            //     context.restore();
-            //
-            //
-            //     // draw_debug_bullet(xc, yc, 5);
-            //
-            //     //debug//debug//debug//debug//debug//debug
-            //
-            //     if (debug) {
-            //         nodes.forEach(function (current_node, index) {
-            //
-            //             next_node = index === nodes.length - 1 ? nodes[0] : nodes[index + 1];
-            //
-            //             xc = current_node.x + (next_node.x - current_node.x) * 0.5;
-            //             yc = current_node.y + (next_node.y - current_node.y) * 0.5;
-            //
-            //             draw_debug_bullet(current_node.x, current_node.y, 10, '#0000FF');
-            //
-            //             draw_debug_bullet(xc, yc, 10, '#00FF00');
-            //
-            //             // draw_debug_bullet(current_node.x, current_node.y, false, 3);
-            //             // draw_debug_bullet(xc, yc, false, 10);
-            //
-            //         });
-            //     }
-            //
-            //
-            //
-            //     context.save();
-            //     context.globalAlpha = 1.0;
-            //     context.lineWidth = 1;
-            //     context.lineCap = 'round';
-            //     context.lineJoin = 'round';
-            //     context.strokeStyle = '#a9a9a9';
-            //     context.fillStyle = '#a9a9a9';
-            //
-            //
-            //     context.restore();
-            //
-            // });
+            // context.stroke();
+
+            // draw_debug_bullet(node.x, node.y, 10, '#FF0000');
 
         }
 
