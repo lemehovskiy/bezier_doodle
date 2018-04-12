@@ -12139,16 +12139,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         self.data_options = self.$element.data('bezier-doodle');
         self.settings = $.extend(true, self.settings, self.data_options);
 
-        // let canvas = $('<canvas/>',{'class':'doodle'});
-        //
-        // self.$element.append(canvas);
-        //
-        // let context = canvas[0].getContext('2d');
-        //
-        // context.width = 300;
-        // context.height = 300;
-
-
         var canvas,
             context,
             control_points = [],
@@ -12171,6 +12161,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             friction = 0.98;
 
         var pairs = [];
+
+        var mousePos = {};
 
         function getRandomArbitrary(min, max) {
             return Math.random() * (max - min) + min;
@@ -12201,7 +12193,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
             window.onresize = onResize;
 
-            createBezierNodes();
+            create_control_points();
+
+            canvas.addEventListener('mousemove', function (evt) {
+                mousePos = getMousePos(canvas, evt);
+            }, false);
         }
 
         function onResize() {
@@ -12210,7 +12206,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             canvas.height = window.innerHeight;
         }
 
-        function createBezierNodes() {
+        function create_control_points() {
 
             for (var i = 0; i < total_points; i++) {
 
@@ -12233,7 +12229,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                     max: 100,
                     disturb: 150,
 
-                    orbit: 10,
+                    orbit: 5,
                     angle: Math.random() * Math.PI * 2,
                     speed: getRandomArbitrary(0.05, 0.1),
 
@@ -12247,21 +12243,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                     x: 0,
                     y: 0
                 });
-
-                // console.log(total_points    );
-
             }
 
             loop();
-
-            // create_pairs();
         }
-
-        // function update_nodes() {
-        //
-        //     console.log(nodes);
-        // }
-
 
         function loop() {
 
@@ -12278,17 +12263,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }
 
         function update() {
-            control_points.forEach(function (node) {
+            control_points.forEach(function (control_point) {
 
                 context.clearRect(0, 0, canvas.width, canvas.height);
 
-                node.lastX += canvas.width * 0.5 + node.disturb * Math.cos(node.point_angle) - node.lastX;
-                node.lastY += canvas.height * 0.5 + node.disturb * Math.sin(node.point_angle) - node.lastY;
+                control_point.lastX += canvas.width * 0.5 + control_point.disturb * Math.cos(control_point.point_angle) - control_point.lastX;
+                control_point.lastY += canvas.height * 0.5 + control_point.disturb * Math.sin(control_point.point_angle) - control_point.lastY;
 
-                node.x += node.lastX + Math.cos(node.angle) * node.orbit - node.x;
-                node.y += node.lastY + Math.sin(node.angle) * node.orbit - node.y;
+                control_point.x += control_point.lastX + Math.cos(control_point.angle) * control_point.orbit - control_point.x;
+                control_point.y += control_point.lastY + Math.sin(control_point.angle) * control_point.orbit - control_point.y;
 
-                node.angle += node.speed;
+                control_point.angle += control_point.speed;
             });
 
             var next_control_point = void 0,
@@ -12313,6 +12298,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             context.lineWidth = 2;
             context.stroke();
             context.restore();
+        }
+
+        function getMousePos(canvas, evt) {
+            var rect = canvas.getBoundingClientRect();
+            return {
+                x: evt.clientX - rect.left,
+                y: evt.clientY - rect.top
+            };
         }
 
         function render() {

@@ -29,15 +29,6 @@
             self.settings = $.extend(true, self.settings, self.data_options);
 
 
-            // let canvas = $('<canvas/>',{'class':'doodle'});
-            //
-            // self.$element.append(canvas);
-            //
-            // let context = canvas[0].getContext('2d');
-            //
-            // context.width = 300;
-            // context.height = 300;
-
 
             var canvas, context, control_points = [], nodes = [], mouse = {x: 0, y: 0}, color = {
                 r: 0,
@@ -53,6 +44,8 @@
             let ease = 0.01, friction = 0.98;
 
             let pairs = [];
+
+            let mousePos = {};
 
             function getRandomArbitrary(min, max) {
                 return Math.random() * (max - min) + min;
@@ -88,7 +81,11 @@
 
                 window.onresize = onResize;
 
-                createBezierNodes();
+                create_control_points();
+
+                canvas.addEventListener('mousemove', function(evt) {
+                    mousePos = getMousePos(canvas, evt);
+                }, false);
 
 
             }
@@ -102,7 +99,7 @@
             }
 
 
-            function createBezierNodes() {
+            function create_control_points() {
 
                 for (let i = 0; i < total_points; i++) {
 
@@ -127,7 +124,7 @@
                         max: 100,
                         disturb: 150,
 
-                        orbit: 10,
+                        orbit: 5,
                         angle: Math.random() * Math.PI * 2,
                         speed: getRandomArbitrary(0.05, 0.1),
 
@@ -142,23 +139,13 @@
                         y: 0
                     })
 
-                    // console.log(total_points    );
-
-
                 }
 
 
                 loop();
 
-                // create_pairs();
-
             }
 
-
-            // function update_nodes() {
-            //
-            //     console.log(nodes);
-            // }
 
 
             function loop() {
@@ -180,18 +167,18 @@
 
 
             function update() {
-                control_points.forEach(function (node) {
+                control_points.forEach(function (control_point) {
 
                     context.clearRect(0, 0, canvas.width, canvas.height);
 
-                    node.lastX += canvas.width * 0.5 + node.disturb * Math.cos(node.point_angle) - node.lastX;
-                    node.lastY += canvas.height * 0.5 + node.disturb * Math.sin(node.point_angle) - node.lastY;
+                    control_point.lastX += canvas.width * 0.5 + control_point.disturb * Math.cos(control_point.point_angle) - control_point.lastX;
+                    control_point.lastY += canvas.height * 0.5 + control_point.disturb * Math.sin(control_point.point_angle) - control_point.lastY;
 
-                    node.x += (node.lastX + Math.cos(node.angle) * node.orbit) - node.x;
-                    node.y += (node.lastY + Math.sin(node.angle) * node.orbit) - node.y;
+                    control_point.x += (control_point.lastX + Math.cos(control_point.angle) * control_point.orbit) - control_point.x;
+                    control_point.y += (control_point.lastY + Math.sin(control_point.angle) * control_point.orbit) - control_point.y;
 
 
-                    node.angle += node.speed;
+                    control_point.angle += control_point.speed;
 
                 });
 
@@ -217,6 +204,14 @@
                 context.lineWidth = 2;
                 context.stroke();
                 context.restore();
+            }
+
+            function getMousePos(canvas, evt) {
+                var rect = canvas.getBoundingClientRect();
+                return {
+                    x: evt.clientX - rect.left,
+                    y: evt.clientY - rect.top
+                };
             }
 
 
