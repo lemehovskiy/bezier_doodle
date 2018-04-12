@@ -32,14 +32,14 @@
             self.settings = $.extend(true, self.settings, self.data_options);
 
             self.control_points = [];
+            self.is_hidden = false;
 
             let canvas,
                 context,
                 nodes = [],
                 FPS = 30,
                 mouse_pos = {},
-                mouse_over = false,
-                is_shown = false;
+                mouse_over = false;
 
             init();
 
@@ -139,6 +139,8 @@
             }
 
             function loop() {
+
+                if (self.is_hidden) return;
                 clear();
                 update();
                 render();
@@ -228,16 +230,30 @@
             }
         }
 
+        hide(){
+            let self = this;
+
+            self.control_points.forEach(function(control_point){
+                let tl = new TimelineLite();
+
+                tl.to(control_point, 1, {radius: 40, onComplete: function(){
+                    self.is_hidden = true;
+                }});
+                tl.to(self.$element, 0.5, {opacity: 0}, '-=0.3');
+            })
+        }
+
         show(){
             let self = this;
 
             self.control_points.forEach(function(control_point){
-                TweenLite.to(control_point, 1, {radius: self.settings.radius});
+                let tl = new TimelineLite();
+
+                tl.to(control_point, 1, {radius: control_point.radius, onComplete: function(){
+                    self.is_hidden = true;
+                }});
+                tl.to(self.$element, 0.5, {opacity: 1}, '-=0.3');
             })
-        }
-
-        hide(){
-
         }
     }
 

@@ -16,4 +16,6 @@ $(document).ready(function () {
 
     $('.doodle-sample').bezierDoodle();
 
+    $('.doodle-sample').bezierDoodle('hide');
+
 });

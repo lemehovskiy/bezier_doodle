@@ -7082,6 +7082,8 @@ if (true) {
 $(document).ready(function () {
 
     $('.doodle-sample').bezierDoodle();
+
+    $('.doodle-sample').bezierDoodle('hide');
 });
 
 /***/ }),
@@ -12148,14 +12150,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             self.settings = $.extend(true, self.settings, self.data_options);
 
             self.control_points = [];
+            self.is_hidden = false;
 
             var canvas = void 0,
                 context = void 0,
                 nodes = [],
                 FPS = 30,
                 mouse_pos = {},
-                mouse_over = false,
-                is_shown = false;
+                mouse_over = false;
 
             init();
 
@@ -12245,6 +12247,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             }
 
             function loop() {
+
+                if (self.is_hidden) return;
                 clear();
                 update();
                 render();
@@ -12337,17 +12341,33 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }
 
         _createClass(BezierDoodle, [{
+            key: 'hide',
+            value: function hide() {
+                var self = this;
+
+                self.control_points.forEach(function (control_point) {
+                    var tl = new TimelineLite();
+
+                    tl.to(control_point, 1, { radius: 40, onComplete: function onComplete() {
+                            self.is_hidden = true;
+                        } });
+                    tl.to(self.$element, 0.5, { opacity: 0 }, '-=0.3');
+                });
+            }
+        }, {
             key: 'show',
             value: function show() {
                 var self = this;
 
                 self.control_points.forEach(function (control_point) {
-                    TweenLite.to(control_point, 1, { radius: self.settings.radius });
+                    var tl = new TimelineLite();
+
+                    tl.to(control_point, 1, { radius: control_point.radius, onComplete: function onComplete() {
+                            self.is_hidden = true;
+                        } });
+                    tl.to(self.$element, 0.5, { opacity: 1 }, '-=0.3');
                 });
             }
-        }, {
-            key: 'hide',
-            value: function hide() {}
         }]);
 
         return BezierDoodle;
