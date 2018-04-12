@@ -39,7 +39,7 @@ section {
 
 .doodle-sample-wrap {
   padding: 100px 0 0;
-  max-width: 400px;
+  max-width: 300px;
   margin: auto;
   .rect-outer {
     padding: 100% 0 0;
@@ -50,5 +50,42 @@ section {
     height: 100%;
   }
 }
+
 .doodle-sample {
+  &.open {
+
+    .label {
+      opacity: 1;
+    }
+  }
+
+  .label {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    z-index: 3;
+    opacity: 0;
+    transition: .5s;
+  }
+}
+
+.doodle-trigger {
+  font-size: 30px;
+  border-radius: 50%;
+  background: black;
+  color: white;
+  height: 40px;
+  width: 40px;
+
+  &:before {
+    content: '+';
+  }
+
+  &.open {
+    &:before {
+      content: "-";
+    }
+  }
 }

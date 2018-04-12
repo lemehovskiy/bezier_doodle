@@ -7073,7 +7073,7 @@ __webpack_require__(67);
 
 __webpack_require__(68);
 
-__webpack_require__(108);
+__webpack_require__(112);
 
 if (true) {
     console.log('NODE_ENV == dev');
@@ -7083,7 +7083,16 @@ $(document).ready(function () {
 
     $('.doodle-sample').bezierDoodle();
 
-    $('.doodle-sample').bezierDoodle('hide');
+    $('.doodle-trigger').on('click', function () {
+
+        if ($(this).hasClass('open')) {
+            $(this).removeClass('open');
+            $('.doodle-sample').bezierDoodle('hide');
+        } else {
+            $(this).addClass('open');
+            $('.doodle-sample').bezierDoodle('show');
+        }
+    });
 });
 
 /***/ }),
@@ -12038,7 +12047,11 @@ if ( !noGlobal ) {
 
 
 /***/ }),
-/* 108 */
+/* 108 */,
+/* 109 */,
+/* 110 */,
+/* 111 */,
+/* 112 */
 /***/ (function(module, exports) {
 
 /******/ (function(modules) { // webpackBootstrap
@@ -12135,8 +12148,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
             //extend by function call
             self.settings = $.extend(true, {
-                radius: 150,
-                magnetic_radius: 200,
+                radius: 100,
+                magnetic_radius: 150,
                 segments_count: 14,
                 control_point_move_radius: 10,
                 debug: false
@@ -12150,7 +12163,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             self.settings = $.extend(true, self.settings, self.data_options);
 
             self.control_points = [];
-            self.is_hidden = false;
+            self.is_hidden = true;
 
             var canvas = void 0,
                 context = void 0,
@@ -12174,6 +12187,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 canvas = document.createElement('canvas');
 
                 self.$element.append(canvas);
+
+                // self.$element.css({
+                //     "opacity": '0'
+                // })
+
 
                 canvas.style.position = 'absolute';
                 canvas.style.top = 0;
@@ -12226,7 +12244,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
                         min: 50,
                         max: 100,
-                        radius: self.settings.radius,
+                        radius: 60,
 
                         orbit: self.settings.control_point_move_radius,
                         angle: Math.random() * Math.PI * 2,
@@ -12248,10 +12266,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
             function loop() {
 
-                if (self.is_hidden) return;
-                clear();
-                update();
-                render();
+                if (!self.is_hidden) {
+                    clear();
+                    update();
+                    render();
+                }
 
                 requestAnimFrame(loop);
             }
@@ -12345,13 +12364,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             value: function hide() {
                 var self = this;
 
+                self.$element.removeClass('open');
                 self.control_points.forEach(function (control_point) {
                     var tl = new TimelineLite();
 
-                    tl.to(control_point, 1, { radius: 40, onComplete: function onComplete() {
+                    tl.to(control_point, 0.5, { radius: 60, onComplete: function onComplete() {
                             self.is_hidden = true;
                         } });
-                    tl.to(self.$element, 0.5, { opacity: 0 }, '-=0.3');
+                    tl.to(self.$element, 0.7, { opacity: 0 }, '-=0.5');
                 });
             }
         }, {
@@ -12359,13 +12379,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             value: function show() {
                 var self = this;
 
+                self.$element.addClass('open');
+
+                self.is_hidden = false;
+
                 self.control_points.forEach(function (control_point) {
                     var tl = new TimelineLite();
 
-                    tl.to(control_point, 1, { radius: control_point.radius, onComplete: function onComplete() {
-                            self.is_hidden = true;
-                        } });
-                    tl.to(self.$element, 0.5, { opacity: 1 }, '-=0.3');
+                    console.log(self.settings.radius);
+
+                    tl.to(control_point, 0.8, { radius: self.settings.radius });
+                    tl.to(self.$element, 0.3, { opacity: 1 }, '-=.8');
                 });
             }
         }]);
@@ -12392,10 +12416,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 /******/ ]);
 
 /***/ }),
-/* 109 */,
-/* 110 */,
-/* 111 */,
-/* 112 */,
 /* 113 */
 /***/ (function(module, exports, __webpack_require__) {
 

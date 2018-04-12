@@ -16,6 +16,17 @@ $(document).ready(function () {
 
     $('.doodle-sample').bezierDoodle();
 
-    $('.doodle-sample').bezierDoodle('hide');
+
+    $('.doodle-trigger').on('click', function(){
+
+        if ($(this).hasClass('open')) {
+            $(this).removeClass('open');
+            $('.doodle-sample').bezierDoodle('hide');
+        }
+        else {
+            $(this).addClass('open');
+            $('.doodle-sample').bezierDoodle('show');
+        }
+    })
 
 });
