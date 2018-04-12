@@ -45,7 +45,7 @@
 
             let pairs = [];
 
-            let mousePos = {};
+            let mouse_pos = {};
 
             function getRandomArbitrary(min, max) {
                 return Math.random() * (max - min) + min;
@@ -84,7 +84,8 @@
                 create_control_points();
 
                 canvas.addEventListener('mousemove', function(evt) {
-                    mousePos = getMousePos(canvas, evt);
+                    mouse_pos = getMousePos(canvas, evt);
+
                 }, false);
 
 
@@ -181,6 +182,23 @@
                     control_point.angle += control_point.speed;
 
                 });
+
+                control_points.forEach(function(control_point, index){
+
+                    let a = mouse_pos.x - control_point.x;
+                    let b = mouse_pos.y - control_point.y;
+                    let distance = Math.sqrt(a * a + b * b);
+
+                    var tl = new TimelineLite();
+
+                    if (distance < 50) {
+                        TweenLite.to(control_points[index], 1, {disturb: 200})
+                    }
+
+                    else {
+                        TweenLite.to(control_points[index], 1, {disturb: 150})
+                    }
+                })
 
 
                 let next_control_point, current_control_point;

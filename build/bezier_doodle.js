@@ -123,7 +123,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
         var pairs = [];
 
-        var mousePos = {};
+        var mouse_pos = {};
 
         function getRandomArbitrary(min, max) {
             return Math.random() * (max - min) + min;
@@ -157,7 +157,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             create_control_points();
 
             canvas.addEventListener('mousemove', function (evt) {
-                mousePos = getMousePos(canvas, evt);
+                mouse_pos = getMousePos(canvas, evt);
             }, false);
         }
 
@@ -235,6 +235,21 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 control_point.y += control_point.lastY + Math.sin(control_point.angle) * control_point.orbit - control_point.y;
 
                 control_point.angle += control_point.speed;
+            });
+
+            control_points.forEach(function (control_point, index) {
+
+                var a = mouse_pos.x - control_point.x;
+                var b = mouse_pos.y - control_point.y;
+                var distance = Math.sqrt(a * a + b * b);
+
+                var tl = new TimelineLite();
+
+                if (distance < 50) {
+                    TweenLite.to(control_points[index], 1, { disturb: 200 });
+                } else {
+                    TweenLite.to(control_points[index], 1, { disturb: 150 });
+                }
             });
 
             var next_control_point = void 0,

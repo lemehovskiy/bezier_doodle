@@ -4,6 +4,9 @@ require ("jquery");
 
 require('../build/bezier_doodle');
 
+import {TweenMax} from "gsap";
+
+
 if (NODE_ENV == 'development') {
     console.log('NODE_ENV == dev');
 }
