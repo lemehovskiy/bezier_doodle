@@ -182,5 +182,20 @@ section {
   bottom: 0;
 }
 
+.doodle-sample-wrap {
+  padding: 100px 0 0;
+  max-width: 400px;
+  margin: auto;
+}
+
+.doodle-sample-wrap .rect-outer {
+  padding: 100% 0 0;
+}
+
+.doodle-sample-wrap canvas {
+  width: 100%;
+  height: 100%;
+}
+
 
 /*# sourceMappingURL=style.css.map*/

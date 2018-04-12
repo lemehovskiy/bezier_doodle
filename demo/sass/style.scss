@@ -36,3 +36,19 @@ section {
 
   }
 }
+
+.doodle-sample-wrap {
+  padding: 100px 0 0;
+  max-width: 400px;
+  margin: auto;
+  .rect-outer {
+    padding: 100% 0 0;
+  }
+
+  canvas {
+    width: 100%;
+    height: 100%;
+  }
+}
+.doodle-sample {
+}

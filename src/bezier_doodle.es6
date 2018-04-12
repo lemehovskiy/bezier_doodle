@@ -19,9 +19,9 @@
             self.settings = $.extend(true, {
                 radius: 150,
                 magnetic_radius: 200,
-                debug: false,
                 segments_count: 14,
-                control_point_move_radius: 10
+                control_point_move_radius: 10,
+                debug: false
 
             }, options);
 
@@ -31,36 +31,37 @@
             self.data_options = self.$element.data('bezier-doodle');
             self.settings = $.extend(true, self.settings, self.data_options);
 
+            self.control_points = [];
 
             let canvas,
                 context,
-                control_points = [],
                 nodes = [],
-                FPS = 60,
-                mouse_pos = {};
-
-
-            window.requestAnimFrame = (function () {
-                return window.requestAnimationFrame ||
-                    window.webkitRequestAnimationFrame ||
-                    window.mozRequestAnimationFrame ||
-                    window.oRequestAnimationFrame ||
-                    window.msRequestAnimationFrame ||
-
-                    function (callback) {
-                        window.setTimeout(callback, 1000 / FPS);
-                    };
-            })();
+                FPS = 30,
+                mouse_pos = {},
+                mouse_over = false,
+                is_shown = false;
 
             init();
 
             function init() {
+
+                window.requestAnimFrame = (function () {
+                    return window.requestAnimationFrame ||
+                        window.webkitRequestAnimationFrame ||
+                        window.mozRequestAnimationFrame ||
+                        window.oRequestAnimationFrame ||
+                        window.msRequestAnimationFrame ||
+
+                        function (callback) {
+                            window.setTimeout(callback, 1000 / FPS);
+                        };
+                })();
+
                 let body = document.querySelector('body');
 
                 canvas = document.createElement('canvas');
 
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
+                self.$element.append(canvas);
 
 
                 canvas.style.position = 'absolute';
@@ -68,31 +69,31 @@
                 canvas.style.bottom = 0;
                 canvas.style.left = 0;
                 canvas.style.right = 0;
-                canvas.style.zIndex = -1;
+                canvas.style.zIndex = 2;
                 canvas.style.cursor = 'pointer';
-
-
-                self.$element.append(canvas);
 
                 context = canvas.getContext('2d');
 
-                window.onresize = on_resize;
+                canvas.width = self.$element.outerWidth();
+                canvas.height = self.$element.outerWidth();
+
+                // window.onresize = on_resize;
 
                 canvas.addEventListener('mousemove', function (evt) {
                     mouse_pos = get_mouse_pos(canvas, evt);
+                    mouse_over = true;
 
                 }, false);
 
+                element.addEventListener ("mouseout", function(){
+                    mouse_over = false;
+                    self.control_points.forEach(function(control_point){
+                        TweenLite.to(control_point, 1, {radius: self.settings.radius});
+                    })
+                }, false);
 
                 create_control_points();
 
-
-            }
-
-
-            function on_resize() {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
             }
 
 
@@ -105,7 +106,7 @@
                     let x = canvas.width * 0.5;
                     let y = canvas.height * 0.5;
 
-                    control_points.push({
+                    self.control_points.push({
 
                         x: x,
                         y: y,
@@ -137,27 +138,20 @@
                 loop();
             }
 
-
             function loop() {
-
                 clear();
                 update();
                 render();
 
                 requestAnimFrame(loop);
-
             }
-
 
             function clear() {
-
                 context.clearRect(0, 0, innerWidth, innerHeight);
-
             }
 
-
             function update() {
-                control_points.forEach(function (control_point) {
+                self.control_points.forEach(function (control_point) {
 
                     context.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -167,40 +161,35 @@
                     control_point.x += (control_point.lastX + Math.cos(control_point.angle) * control_point.orbit) - control_point.x;
                     control_point.y += (control_point.lastY + Math.sin(control_point.angle) * control_point.orbit) - control_point.y;
 
-
                     control_point.angle += control_point.speed;
-
                 });
 
-                control_points.forEach(function (control_point, index) {
+                if (mouse_over) {
+                    self.control_points.forEach(function (control_point, index) {
+                        let a = mouse_pos.x - control_point.x;
+                        let b = mouse_pos.y - control_point.y;
+                        let distance = Math.sqrt(a * a + b * b);
 
-                    let a = mouse_pos.x - control_point.x;
-                    let b = mouse_pos.y - control_point.y;
-                    let distance = Math.sqrt(a * a + b * b);
+                        if (distance < 60) {
+                            TweenLite.to(self.control_points[index], 1, {radius: self.settings.magnetic_radius});
+                        }
 
-                    if (distance < 80) {
-                        TweenLite.to(control_points[index], 1, {radius: self.settings.magnetic_radius});
-                    }
-
-                    else if (distance > 100) {
-                        TweenLite.to(control_points[index], 1, {radius: self.settings.radius});
-                    }
-                })
-
+                        else if (distance > 80) {
+                            TweenLite.to(self.control_points[index], 1, {radius: self.settings.radius});
+                        }
+                    })
+                }
 
                 let next_control_point, current_control_point;
 
                 nodes.forEach(function (node, index) {
-                    current_control_point = control_points[index];
-                    next_control_point = index === self.settings.segments_count - 1 ? control_points[0] : control_points[index + 1];
+                    current_control_point = self.control_points[index];
+                    next_control_point = index === self.settings.segments_count - 1 ? self.control_points[0] : self.control_points[index + 1];
 
                     node.x = current_control_point.x + (next_control_point.x - current_control_point.x) * 0.5;
                     node.y = current_control_point.y + (next_control_point.y - current_control_point.y) * 0.5;
                 })
-
-
             }
-
 
             function draw_debug_bullet(x, y, size = 10, color = '#a9a9a9') {
                 context.beginPath();
@@ -212,16 +201,14 @@
             }
 
             function get_mouse_pos(canvas, evt) {
-                var rect = canvas.getBoundingClientRect();
+                let rect = canvas.getBoundingClientRect();
                 return {
                     x: evt.clientX - rect.left,
                     y: evt.clientY - rect.top
                 };
             }
 
-
             function render() {
-
                 clear();
 
                 context.beginPath();
@@ -230,7 +217,7 @@
                 nodes.forEach(function (node, index) {
                     let next_node = index === self.settings.segments_count - 1 ? nodes[0] : nodes[index + 1];
                     let current_control_point_index = index === self.settings.segments_count - 1 ? 0 : index + 1;
-                    context.quadraticCurveTo(control_points[current_control_point_index].x, control_points[current_control_point_index].y, next_node.x, next_node.y);
+                    context.quadraticCurveTo(self.control_points[current_control_point_index].x, self.control_points[current_control_point_index].y, next_node.x, next_node.y);
                     context.fill();
                     context.restore();
                 });
@@ -239,10 +226,20 @@
             function get_random_arbitrary(min, max) {
                 return Math.random() * (max - min) + min;
             }
+        }
+
+        show(){
+            let self = this;
+
+            self.control_points.forEach(function(control_point){
+                TweenLite.to(control_point, 1, {radius: self.settings.radius});
+            })
+        }
+
+        hide(){
 
         }
     }
-
 
     $.fn.bezierDoodle = function () {
         let $this = this,
