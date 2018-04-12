@@ -12130,8 +12130,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
         //extend by function call
         self.settings = $.extend(true, {
-
-            test_property: false
+            radius: 150,
+            magnetic_radius: 200,
+            debug: false,
+            segments_count: 14,
+            control_point_move_radius: 10
 
         }, options);
 
@@ -12141,37 +12144,22 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         self.data_options = self.$element.data('bezier-doodle');
         self.settings = $.extend(true, self.settings, self.data_options);
 
-        var canvas,
-            context,
+        var canvas = void 0,
+            context = void 0,
             control_points = [],
             nodes = [],
-            mouse = { x: 0, y: 0 },
-            color = {
-            r: 0,
-            g: 0,
-            b: 0
-        },
-            cycle = 90,
-            input = false,
-            FPS = 60;
+            FPS = 60,
+            mouse_pos = {};
 
-        var total_points = 32;
+        window.requestAnimFrame = function () {
+            return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function (callback) {
+                window.setTimeout(callback, 1000 / FPS);
+            };
+        }();
 
-        var debug = true;
-
-        var ease = 0.01,
-            friction = 0.98;
-
-        var pairs = [];
-
-        var mouse_pos = {};
-
-        function getRandomArbitrary(min, max) {
-            return Math.random() * (max - min) + min;
-        }
+        init();
 
         function init() {
-
             var body = document.querySelector('body');
 
             canvas = document.createElement('canvas');
@@ -12188,31 +12176,28 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             canvas.style.cursor = 'pointer';
 
             self.$element.append(canvas);
-            // body.appendChild(canvas);
-
 
             context = canvas.getContext('2d');
 
-            window.onresize = onResize;
-
-            create_control_points();
+            window.onresize = on_resize;
 
             canvas.addEventListener('mousemove', function (evt) {
-                mouse_pos = getMousePos(canvas, evt);
+                mouse_pos = get_mouse_pos(canvas, evt);
             }, false);
+
+            create_control_points();
         }
 
-        function onResize() {
-
+        function on_resize() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
         }
 
         function create_control_points() {
 
-            for (var i = 0; i < total_points; i++) {
+            for (var i = 0; i < self.settings.segments_count; i++) {
 
-                var point_angle = Math.PI * 2 * i / total_points;
+                var point_angle = Math.PI * 2 * i / self.settings.segments_count;
 
                 var x = canvas.width * 0.5;
                 var y = canvas.height * 0.5;
@@ -12229,11 +12214,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
                     min: 50,
                     max: 100,
-                    disturb: 150,
+                    radius: self.settings.radius,
 
-                    orbit: 5,
+                    orbit: self.settings.control_point_move_radius,
                     angle: Math.random() * Math.PI * 2,
-                    speed: getRandomArbitrary(0.05, 0.1),
+                    speed: get_random_arbitrary(0.05, 0.1),
 
                     point_angle: point_angle,
 
@@ -12246,7 +12231,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                     y: 0
                 });
             }
-
             loop();
         }
 
@@ -12269,8 +12253,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
                 context.clearRect(0, 0, canvas.width, canvas.height);
 
-                control_point.lastX += canvas.width * 0.5 + control_point.disturb * Math.cos(control_point.point_angle) - control_point.lastX;
-                control_point.lastY += canvas.height * 0.5 + control_point.disturb * Math.sin(control_point.point_angle) - control_point.lastY;
+                control_point.lastX += canvas.width * 0.5 + control_point.radius * Math.cos(control_point.point_angle) - control_point.lastX;
+                control_point.lastY += canvas.height * 0.5 + control_point.radius * Math.sin(control_point.point_angle) - control_point.lastY;
 
                 control_point.x += control_point.lastX + Math.cos(control_point.angle) * control_point.orbit - control_point.x;
                 control_point.y += control_point.lastY + Math.sin(control_point.angle) * control_point.orbit - control_point.y;
@@ -12284,12 +12268,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 var b = mouse_pos.y - control_point.y;
                 var distance = Math.sqrt(a * a + b * b);
 
-                var tl = new TimelineLite();
-
-                if (distance < 50) {
-                    TweenLite.to(control_points[index], 1, { disturb: 200 });
-                } else {
-                    TweenLite.to(control_points[index], 1, { disturb: 150 });
+                if (distance < 80) {
+                    TweenLite.to(control_points[index], 1, { radius: self.settings.magnetic_radius });
+                } else if (distance > 100) {
+                    TweenLite.to(control_points[index], 1, { radius: self.settings.radius });
                 }
             });
 
@@ -12298,7 +12280,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
             nodes.forEach(function (node, index) {
                 current_control_point = control_points[index];
-                next_control_point = index === total_points - 1 ? control_points[0] : control_points[index + 1];
+                next_control_point = index === self.settings.segments_count - 1 ? control_points[0] : control_points[index + 1];
 
                 node.x = current_control_point.x + (next_control_point.x - current_control_point.x) * 0.5;
                 node.y = current_control_point.y + (next_control_point.y - current_control_point.y) * 0.5;
@@ -12317,7 +12299,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             context.restore();
         }
 
-        function getMousePos(canvas, evt) {
+        function get_mouse_pos(canvas, evt) {
             var rect = canvas.getBoundingClientRect();
             return {
                 x: evt.clientX - rect.left,
@@ -12333,27 +12315,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             context.moveTo(nodes[0].x, nodes[0].y);
 
             nodes.forEach(function (node, index) {
-                var next_node = index === total_points - 1 ? nodes[0] : nodes[index + 1];
-                var current_control_point_index = index === total_points - 1 ? 0 : index + 1;
+                var next_node = index === self.settings.segments_count - 1 ? nodes[0] : nodes[index + 1];
+                var current_control_point_index = index === self.settings.segments_count - 1 ? 0 : index + 1;
                 context.quadraticCurveTo(control_points[current_control_point_index].x, control_points[current_control_point_index].y, next_node.x, next_node.y);
                 context.fill();
                 context.restore();
             });
-            // context.stroke();
-
-            // draw_debug_bullet(node.x, node.y, 10, '#FF0000');
-
         }
 
-        window.requestAnimFrame = function () {
-
-            return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function (callback) {
-
-                window.setTimeout(callback, 1000 / FPS);
-            };
-        }();
-
-        init();
+        function get_random_arbitrary(min, max) {
+            return Math.random() * (max - min) + min;
+        }
     };
 
     $.fn.bezierDoodle = function () {
