@@ -14,6 +14,22 @@ if (NODE_ENV == 'development') {
 
 $(document).ready(function () {
 
+    $('.doodle-sample').on('show.bd', function(){
+        alert('show');
+    })
+
+    $('.doodle-sample').on('shown.bd', function(){
+        alert('shown');
+    })
+
+    $('.doodle-sample').on('hide.bd', function(){
+        alert('hide');
+    })
+
+    $('.doodle-sample').on('hidden.bd', function(){
+        alert('hidden');
+    })
+
     $('.doodle-sample').bezierDoodle();
 
 

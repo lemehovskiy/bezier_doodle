@@ -114,7 +114,22 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 nodes = [],
                 FPS = 30,
                 mouse_pos = {},
-                mouse_over = false;
+                input = false;
+
+            self.settings.events = {
+                'onShow': function onShow() {
+                    self.$element.trigger('show.bd');
+                },
+                'onShown': function onShown() {
+                    self.$element.trigger('shown.bd');
+                },
+                'onHide': function onHide() {
+                    self.$element.trigger('hide.bd');
+                },
+                'onHidden': function onHidden() {
+                    self.$element.trigger('hidden.bd');
+                }
+            };
 
             init();
 
@@ -132,10 +147,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
                 self.$element.append(canvas);
 
-                // self.$element.css({
-                //     "opacity": '0'
-                // })
-
+                self.canvas_rect = canvas.getBoundingClientRect();
 
                 canvas.style.position = 'absolute';
                 canvas.style.top = 0;
@@ -150,21 +162,51 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 canvas.width = self.$element.outerWidth();
                 canvas.height = self.$element.outerWidth();
 
-                // window.onresize = on_resize;
+                window.onresize = on_resize;
 
-                canvas.addEventListener('mousemove', function (evt) {
-                    mouse_pos = get_mouse_pos(canvas, evt);
-                    mouse_over = true;
-                }, false);
+                if ('ontouchstart' in window) {
+                    canvas.addEventListener('touchstart', on_touch_start, false);
+                    canvas.addEventListener('touchmove', on_touch_start, false);
+                    canvas.addEventListener('touchend', on_touch_end, false);
+                } else {
+                    canvas.addEventListener('mousemove', function (evt) {
+                        mouse_pos = get_mouse_pos(canvas, evt);
+                        input = true;
+                    }, false);
 
-                element.addEventListener("mouseout", function () {
-                    mouse_over = false;
-                    self.control_points.forEach(function (control_point) {
-                        TweenLite.to(control_point, 1, { radius: self.settings.radius });
-                    });
-                }, false);
+                    element.addEventListener("mouseout", function () {
+                        input = false;
+                        self.control_points.forEach(function (control_point) {
+                            TweenLite.to(control_point, 1, { radius: self.settings.radius });
+                        });
+                    }, false);
+                }
 
                 create_control_points();
+            }
+
+            function on_touch_start(event) {
+
+                event.preventDefault();
+
+                input = true;
+
+                mouse_pos.x = event.touches[0].pageX - self.canvas_rect.left;
+                mouse_pos.y = event.touches[0].pageY - self.canvas_rect.top;
+            }
+
+            function on_touch_end(event) {
+                input = false;
+
+                self.control_points.forEach(function (control_point) {
+                    TweenLite.to(control_point, 1, { radius: self.settings.radius });
+                });
+            }
+
+            function on_resize() {
+                var self = this;
+
+                self.canvas_rect = canvas.getBoundingClientRect();
             }
 
             function create_control_points() {
@@ -237,7 +279,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                     control_point.angle += control_point.speed;
                 });
 
-                if (mouse_over) {
+                if (input) {
                     self.control_points.forEach(function (control_point, index) {
                         var a = mouse_pos.x - control_point.x;
                         var b = mouse_pos.y - control_point.y;
@@ -276,10 +318,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             }
 
             function get_mouse_pos(canvas, evt) {
-                var rect = canvas.getBoundingClientRect();
+                var self = this;
+
                 return {
-                    x: evt.clientX - rect.left,
-                    y: evt.clientY - rect.top
+                    x: evt.clientX - self.canvas_rect.left,
+                    y: evt.clientY - self.canvas_rect.top
                 };
             }
 
@@ -309,13 +352,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 var self = this;
 
                 self.$element.removeClass('open');
+                self.$element.trigger('hide.bd');
                 self.control_points.forEach(function (control_point) {
                     var tl = new TimelineLite();
 
-                    tl.to(control_point, 0.5, { radius: 60, onComplete: function onComplete() {
+                    tl.to(control_point, 0.5, { radius: 60 });
+                    tl.to(self.$element, 0.7, { opacity: 0, onComplete: function onComplete() {
                             self.is_hidden = true;
-                        } });
-                    tl.to(self.$element, 0.7, { opacity: 0 }, '-=0.5');
+                            self.$element.trigger('hidden.bd');
+                        } }, '-=0.5');
                 });
             }
         }, {
@@ -323,6 +368,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             value: function show() {
                 var self = this;
 
+                self.$element.trigger('show.bd');
                 self.$element.addClass('open');
 
                 self.is_hidden = false;
@@ -330,10 +376,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 self.control_points.forEach(function (control_point) {
                     var tl = new TimelineLite();
 
-                    console.log(self.settings.radius);
-
                     tl.to(control_point, 0.8, { radius: self.settings.radius });
-                    tl.to(self.$element, 0.3, { opacity: 1 }, '-=.8');
+                    tl.to(self.$element, 0.3, { opacity: 1, onComplete: function onComplete() {
+                            self.$element.trigger('shown.bd');
+                        } }, '-=.8');
                 });
             }
         }]);
