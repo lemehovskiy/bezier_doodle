@@ -109,27 +109,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             self.control_points = [];
             self.is_hidden = true;
 
+            self.canvas_rect = {};
+
             var canvas = void 0,
                 context = void 0,
                 nodes = [],
                 FPS = 30,
                 mouse_pos = {},
                 input = false;
-
-            self.settings.events = {
-                'onShow': function onShow() {
-                    self.$element.trigger('show.bd');
-                },
-                'onShown': function onShown() {
-                    self.$element.trigger('shown.bd');
-                },
-                'onHide': function onHide() {
-                    self.$element.trigger('hide.bd');
-                },
-                'onHidden': function onHidden() {
-                    self.$element.trigger('hidden.bd');
-                }
-            };
 
             init();
 
@@ -318,7 +305,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             }
 
             function get_mouse_pos(canvas, evt) {
-                var self = this;
 
                 return {
                     x: evt.clientX - self.canvas_rect.left,

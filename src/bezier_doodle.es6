@@ -34,30 +34,14 @@
             self.control_points = [];
             self.is_hidden = true;
 
+            self.canvas_rect = {};
+
             let canvas,
                 context,
                 nodes = [],
                 FPS = 30,
                 mouse_pos = {},
                 input = false;
-
-
-
-            self.settings.events = {
-                'onShow': function () {
-                    self.$element.trigger('show.bd');
-                },
-                'onShown': function () {
-                    self.$element.trigger('shown.bd');
-                },
-                'onHide': function () {
-                    self.$element.trigger('hide.bd');
-                },
-                'onHidden': function () {
-                    self.$element.trigger('hidden.bd');
-                }
-            };
-
 
 
             init();
@@ -85,6 +69,7 @@
                 self.canvas_rect = canvas.getBoundingClientRect();
 
 
+
                 canvas.style.position = 'absolute';
                 canvas.style.top = 0;
                 canvas.style.bottom = 0;
@@ -105,7 +90,6 @@
                     canvas.addEventListener('touchstart', on_touch_start, false);
                     canvas.addEventListener('touchmove', on_touch_start, false);
                     canvas.addEventListener('touchend', on_touch_end, false);
-
                 }
                 else {
                     canvas.addEventListener('mousemove', function (evt) {
@@ -258,7 +242,6 @@
             }
 
             function get_mouse_pos(canvas, evt) {
-                let self = this;
 
                 return {
                     x: evt.clientX - self.canvas_rect.left,
