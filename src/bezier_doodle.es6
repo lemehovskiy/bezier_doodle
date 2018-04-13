@@ -68,8 +68,6 @@
 
                 self.canvas_rect = canvas.getBoundingClientRect();
 
-
-
                 canvas.style.position = 'absolute';
                 canvas.style.top = 0;
                 canvas.style.bottom = 0;
