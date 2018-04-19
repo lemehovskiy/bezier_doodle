@@ -20,6 +20,7 @@
                 radius: 100,
                 magnetic_radius: 150,
                 segments_count: 14,
+                hidden_radius: 60,
                 control_point_move_radius: 10,
                 debug: false,
                 color: '#000000'
@@ -155,7 +156,7 @@
 
                         min: 50,
                         max: 100,
-                        radius: 60,
+                        radius: self.settings.hidden_radius,
 
                         orbit: self.settings.control_point_move_radius,
                         angle: Math.random() * Math.PI * 2,
@@ -278,7 +279,7 @@
             self.control_points.forEach(function(control_point){
                 let tl = new TimelineLite();
 
-                tl.to(control_point, 0.5, {radius: 60});
+                tl.to(control_point, 0.5, {radius: self.settings.hidden_radius});
                 tl.to(self.$element, 0.7, {opacity: 0, onComplete: function(){
                     self.is_hidden = true;
                     self.$element.trigger('hidden.bd');
