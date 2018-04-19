@@ -96,7 +96,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 magnetic_radius: 150,
                 segments_count: 14,
                 control_point_move_radius: 10,
-                debug: false
+                debug: false,
+                color: '#000000'
 
             }, options);
 
@@ -317,6 +318,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
                 context.beginPath();
                 context.moveTo(nodes[0].x, nodes[0].y);
+
+                context.fillStyle = self.settings.color;
 
                 nodes.forEach(function (node, index) {
                     var next_node = index === self.settings.segments_count - 1 ? nodes[0] : nodes[index + 1];

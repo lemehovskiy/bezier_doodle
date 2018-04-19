@@ -21,7 +21,8 @@
                 magnetic_radius: 150,
                 segments_count: 14,
                 control_point_move_radius: 10,
-                debug: false
+                debug: false,
+                color: '#000000'
 
             }, options);
 
@@ -252,6 +253,8 @@
 
                 context.beginPath();
                 context.moveTo(nodes[0].x, nodes[0].y);
+
+                context.fillStyle = self.settings.color;
 
                 nodes.forEach(function (node, index) {
                     let next_node = index === self.settings.segments_count - 1 ? nodes[0] : nodes[index + 1];
