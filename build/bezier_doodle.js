@@ -146,8 +146,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
                 context = canvas.getContext('2d');
 
-                canvas.width = self.$element.outerWidth();
-                canvas.height = self.$element.outerWidth();
+                canvas.width = self.settings.magnetic_radius * 2 + 20;
+                canvas.height = self.settings.magnetic_radius * 2 + 20;
 
                 window.onresize = on_resize;
 
