@@ -20161,7 +20161,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 magnetic_radius: 150,
                 segments_count: 14,
                 hidden_radius: 60,
-                control_point_move_radius: 10,
+                control_point_move_radius: 7,
                 debug: false,
                 color: '#000000'
 
