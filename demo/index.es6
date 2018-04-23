@@ -15,9 +15,7 @@ if (NODE_ENV == 'development') {
 $(document).ready(function () {
 
 
-    $('.doodle-sample').bezierDoodle({
-        color: '#505099'
-    });
+    $('.doodle-sample').bezierDoodle();
 
 
     $('.doodle-trigger').on('click', function(){

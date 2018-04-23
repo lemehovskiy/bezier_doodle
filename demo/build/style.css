@@ -164,6 +164,9 @@ body {
 
 .container {
   margin: auto;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
 }
 
 section {
@@ -185,6 +188,7 @@ section {
 .doodle-sample-wrap {
   padding: 100px 0 0;
   max-width: 300px;
+  width: 100%;
   margin: auto;
 }
 

@@ -98,7 +98,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 hidden_radius: 60,
                 control_point_move_radius: 7,
                 debug: false,
-                color: '#000000'
+                color: '#000000',
+                shadow_color: '#000000',
+                shadow_blur: 10,
+                is_init_state_open: true
 
             }, options);
 
@@ -109,7 +112,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             self.settings = $.extend(true, self.settings, self.data_options);
 
             self.control_points = [];
+
             self.is_hidden = true;
+
+            self.init_radius = self.settings.hidden_radius;
 
             self.canvas_rect = {};
 
@@ -172,6 +178,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 }
 
                 create_control_points();
+
+                if (self.settings.is_init_state_open) {
+                    self.show();
+                }
             }
 
             function on_touch_start(event) {
@@ -219,7 +229,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
                         min: 50,
                         max: 100,
-                        radius: self.settings.hidden_radius,
+                        radius: self.init_radius,
 
                         orbit: self.settings.control_point_move_radius,
                         angle: Math.random() * Math.PI * 2,
@@ -322,13 +332,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
                 context.fillStyle = self.settings.color;
 
+                context.shadowColor = self.settings.shadow_color;
+                context.shadowBlur = self.settings.shadow_blur;
+
                 nodes.forEach(function (node, index) {
                     var next_node = index === self.settings.segments_count - 1 ? nodes[0] : nodes[index + 1];
                     var current_control_point_index = index === self.settings.segments_count - 1 ? 0 : index + 1;
                     context.quadraticCurveTo(self.control_points[current_control_point_index].x, self.control_points[current_control_point_index].y, next_node.x, next_node.y);
-                    context.fill();
-                    context.restore();
                 });
+                context.fill();
             }
 
             function get_random_arbitrary(min, max) {
